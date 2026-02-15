@@ -38,7 +38,8 @@
 - `003_key_repeat_fast`
   - `Key Repeat 빠르게 적용`
 
-기존 개별 실행 스크립트(`set_*`, `restore_*`)는 하위 호환을 위해 래퍼로 유지됩니다.
+개별 기능은 각 `features/<id>/set.sh`, `features/<id>/reset.sh` 경로로 직접 실행할 수 있으며,
+`run.sh`에서 동적으로 메뉴를 구성합니다.
 
 ## 새 기능 추가
 
@@ -106,17 +107,17 @@ FEATURE_ENABLED=1
 - `enter`: 실행
 - `q`: 취소
 
-### 2) 개별 기능 실행 (래퍼)
+### 2) 개별 기능 실행
 
 ```bash
-./set_input_source_shift_space.sh
-./set_spotlight_ctrl_space.sh
-./set_key_repeat_fast.sh
-./restore_symbolichotkeys.sh
-./restore_key_repeat.sh
+./features/001_input_source_shift_space/set.sh
+./features/002_spotlight_ctrl_space/set.sh
+./features/003_key_repeat_fast/set.sh
+./features/001_input_source_shift_space/reset.sh
+./features/003_key_repeat_fast/reset.sh
 ```
 
-`--refresh-original`은 `set_*` 래퍼를 통해 전달됩니다.
+`--refresh-original`은 각 `set.sh`에서 지원됩니다.
 
 ## 주의사항
 
