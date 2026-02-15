@@ -166,6 +166,10 @@ parse_args() {
   done
 }
 
+disable_input_echo() {
+  stty -echo >/dev/null 2>&1 || true
+}
+
 draw_mode_menu() {
   local cursor="$1"
   refresh_ui
@@ -379,6 +383,7 @@ main() {
   require_dependencies
 
   tput civis >/dev/null 2>&1 || true
+  disable_input_echo
 
   if has_any_backup; then
     select_mode_if_backup_exists
