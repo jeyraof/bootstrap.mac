@@ -41,8 +41,7 @@
 - `003_key_repeat_fast`
   - `Key Repeat 빠르게 적용`
 
-개별 기능은 각 `features/<id>/set.sh`, `features/<id>/reset.sh` 경로로 직접 실행할 수 있으며,
-`run.sh`에서 동적으로 메뉴를 구성합니다.
+`run.sh`에서 동적으로 메뉴를 구성하며, 인터랙티브로만 실행할 수 있습니다.
 
 ## 새 기능 추가
 
@@ -121,17 +120,7 @@ curl -fsSL https://leejaeyoung.org/bootstrap.mac.sh | bash
 - `enter`: 실행
 - `q`: 취소
 
-### 2) 개별 기능 실행
-
-```bash
-./features/001_input_source_shift_space/set.sh
-./features/002_spotlight_ctrl_space/set.sh
-./features/003_key_repeat_fast/set.sh
-./features/001_input_source_shift_space/reset.sh
-./features/003_key_repeat_fast/reset.sh
-```
-
-`--refresh-original`은 각 `set.sh`에서 지원됩니다.
+개별 `set.sh`/`reset.sh`는 기능 단위 내부 실행 진입점이므로 일반 사용자 안내 대상에서 제외합니다.
 
 ## 주의사항
 
