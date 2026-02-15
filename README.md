@@ -72,7 +72,7 @@ curl -fsSL https://leejaeyoung.org/bootstrap.mac.sh | bash
 ## 새 기능 추가
 
 1. `features/_template`을 새 디렉토리로 복사하고 (`features/00X_...`)
-2. `feature.sh`에서 `FEATURE_ID`/`FEATURE_LABEL`/`FEATURE_ENABLED`와 스크립트 경로를 설정
+2. `feature.sh`에서 `FEATURE_LABEL`/`FEATURE_ENABLED`와 스크립트 경로를 설정
 3. `set.sh`, `reset.sh`에 `chmod +x` 권한 부여
 4. `run.sh` 실행 시 새 행이 자동 노출됨
 
@@ -82,7 +82,6 @@ curl -fsSL https://leejaeyoung.org/bootstrap.mac.sh | bash
 
 | 항목 | 설명 | 필수 |
 |---|---|---|
-| `FEATURE_ID` | 기능 고유 ID (`001_input_source_shift_space` 등) | 필수 |
 | `FEATURE_LABEL` | 메뉴 라벨 | 필수 |
 | `FEATURE_DESCRIPTION_PATH` | 설명 파일 경로 (텍스트 파일) | 필수 |
 | `FEATURE_APPLY_SCRIPT` | 적용 스크립트 경로 | 필수 |
@@ -92,7 +91,6 @@ curl -fsSL https://leejaeyoung.org/bootstrap.mac.sh | bash
 예시:
 
 ```bash
-FEATURE_ID="004_example"
 FEATURE_LABEL="예시 기능"
 FEATURE_DESCRIPTION_PATH="$SCRIPT_DIR/description"
 FEATURE_APPLY_SCRIPT="$SCRIPT_DIR/set.sh"

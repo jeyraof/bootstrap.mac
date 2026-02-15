@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# 고유 ID (예: 004_example)
-FEATURE_ID="004_example"
-
 # 메뉴에 표시될 라벨
 FEATURE_LABEL="새 기능"
 

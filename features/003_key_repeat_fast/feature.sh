@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-FEATURE_ID="003_key_repeat_fast"
 FEATURE_LABEL="Key Repeat 빠르게 적용"
 FEATURE_DESCRIPTION_PATH="$SCRIPT_DIR/description"
 FEATURE_APPLY_SCRIPT="$SCRIPT_DIR/set.sh"

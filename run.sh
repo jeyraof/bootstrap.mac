@@ -9,7 +9,6 @@ MODE="apply_only"
 SELECTED=()
 ORIG_STTY_SETTINGS=""
 
-FEATURE_IDS=()
 FEATURE_LABELS=()
 FEATURE_DESCRIPTIONS=()
 FEATURE_APPLY_CMDS=()
@@ -79,7 +78,6 @@ load_features() {
     # shellcheck disable=SC1090
     source "$feature_script"
 
-    local id="${FEATURE_ID:-}"
     local label="${FEATURE_LABEL:-}"
     local description_path="${FEATURE_DESCRIPTION_PATH:-$feature_dir/description}"
     local apply_script="${FEATURE_APPLY_SCRIPT:-}"
@@ -87,11 +85,11 @@ load_features() {
     local enabled="${FEATURE_ENABLED:-1}"
 
     if [[ "$enabled" != "1" ]]; then
-      unset FEATURE_ID FEATURE_LABEL FEATURE_DESCRIPTION_PATH FEATURE_APPLY_SCRIPT FEATURE_RESET_SCRIPT FEATURE_ENABLED FEATURE_REQUIRES_TTY
+      unset FEATURE_LABEL FEATURE_DESCRIPTION_PATH FEATURE_APPLY_SCRIPT FEATURE_RESET_SCRIPT FEATURE_ENABLED FEATURE_REQUIRES_TTY
       continue
     fi
 
-    if [[ -z "$id" || -z "$label" || -z "$apply_script" || -z "$reset_script" ]]; then
+    if [[ -z "$label" || -z "$apply_script" || -z "$reset_script" ]]; then
       echo "❌ feature.sh에 필수 항목이 누락되었습니다: $feature_script" >&2
       exit 1
     fi
@@ -113,16 +111,15 @@ load_features() {
       exit 1
     fi
 
-    FEATURE_IDS+=("$id")
     FEATURE_LABELS+=("$label")
     FEATURE_DESCRIPTIONS+=("$description_path")
     FEATURE_APPLY_CMDS+=("$apply_script")
     FEATURE_RESET_CMDS+=("$reset_script")
 
-    unset FEATURE_ID FEATURE_LABEL FEATURE_DESCRIPTION_PATH FEATURE_APPLY_SCRIPT FEATURE_RESET_SCRIPT FEATURE_ENABLED FEATURE_REQUIRES_TTY
+    unset FEATURE_LABEL FEATURE_DESCRIPTION_PATH FEATURE_APPLY_SCRIPT FEATURE_RESET_SCRIPT FEATURE_ENABLED FEATURE_REQUIRES_TTY
   done
 
-  if [[ ${#FEATURE_IDS[@]} -eq 0 ]]; then
+  if [[ ${#FEATURE_LABELS[@]} -eq 0 ]]; then
     echo "❌ 활성화된 기능이 없습니다. features 디렉토리를 확인하세요." >&2
     exit 1
   fi
