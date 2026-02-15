@@ -74,7 +74,7 @@ read_key() {
 
   if [[ "$key" == $'\x1b' ]]; then
     local seq
-    IFS= read -rsn2 -t 0.12 seq || { echo "other"; return 0; }
+    IFS= read -rsn2 -t 1 seq || { echo "other"; return 0; }
     case "$seq" in
       "[A"|"OA") echo "up" ;;
       "[B"|"OB") echo "down" ;;
@@ -85,7 +85,7 @@ read_key() {
 
   if [[ "$key" == $'\xE3' ]]; then
     local hangul
-    IFS= read -rsn2 -t 0.12 hangul || { echo "other"; return 0; }
+    IFS= read -rsn2 -t 1 hangul || { echo "other"; return 0; }
     case "$key$hangul" in
       $'\u3153')
         echo "down"
