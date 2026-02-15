@@ -7,8 +7,6 @@ BACKUP_SYMBOLICHOTKEYS="$HOME/.bootstrap.mac/backups/symbolichotkeys/original.pl
 BACKUP_KEYREPEAT="$HOME/.bootstrap.mac/backups/keyrepeat/original.env"
 
 MODE="apply_only"
-DEBUG_KEY_EVENTS=0
-DEBUG_KEY_LOG="$HOME/.bootstrap.mac/run_debug_keys.log"
 SELECTED=(0 0 0)
 ORIG_STTY_SETTINGS=""
 
@@ -40,32 +38,11 @@ cleanup() {
 
 usage() {
   echo "사용 방법:"
-  echo "./run.sh [--debug-keys]"
-  echo "  --debug-keys   키 입력의 raw hex + action을 stderr로 출력"
+  echo "./run.sh"
 }
 
 refresh_ui() {
-  if [[ "$DEBUG_KEY_EVENTS" -eq 0 ]]; then
-    clear
-  fi
-}
-
-append_debug_log() {
-  local action="$1"
-  local raw="$2"
-  local hex="$3"
-  printf '[debug] raw=%q hex=%s action=%s\n' "$raw" "$hex" "$action" >>"$DEBUG_KEY_LOG"
-}
-
-log_key_event() {
-  local action="$1"
-  local raw="$2"
-  local hex
-
-  [[ "$DEBUG_KEY_EVENTS" -eq 1 ]] || return 0
-  hex="$(printf '%s' "$raw" | od -An -tx1 | tr -d '[:space:]')"
-  append_debug_log "$action" "$raw" "$hex"
-  printf '[debug] raw=%q hex=%s action=%s\n' "$raw" "$hex" "$action" >&2
+  clear
 }
 
 on_interrupt() {
@@ -117,7 +94,6 @@ read_key() {
       "[B"|"OB") action="down" ;;
       *) action="other" ;;
     esac
-    log_key_event "$action" "$key$seq"
     echo "$action"
     return 0
   fi
@@ -145,18 +121,12 @@ read_key() {
       *) action="other" ;;
     esac
   fi
-  log_key_event "$action" "$key"
   echo "$action"
 }
 
 parse_args() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --debug-keys)
-        DEBUG_KEY_EVENTS=1
-        mkdir -p "$HOME/.bootstrap.mac"
-        : >"$DEBUG_KEY_LOG"
-        ;;
       -h|--help)
         usage
         exit 0
