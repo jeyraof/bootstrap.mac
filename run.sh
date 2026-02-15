@@ -7,6 +7,8 @@ BACKUP_SYMBOLICHOTKEYS="$HOME/.bootstrap.mac/backups/symbolichotkeys/original.pl
 BACKUP_KEYREPEAT="$HOME/.bootstrap.mac/backups/keyrepeat/original.env"
 
 MODE="apply_only"
+DEBUG_KEY_EVENTS=0
+DEBUG_KEY_LOG="$HOME/.bootstrap.mac/run_debug_keys.log"
 SELECTED=(0 0 0)
 
 ACTION_LABELS=(
@@ -30,6 +32,36 @@ STEP_CMDS=()
 cleanup() {
   tput cnorm >/dev/null 2>&1 || true
   stty echo >/dev/null 2>&1 || true
+}
+
+usage() {
+  echo "사용 방법:"
+  echo "./run.sh [--debug-keys]"
+  echo "  --debug-keys   키 입력의 raw hex + action을 stderr로 출력"
+}
+
+refresh_ui() {
+  if [[ "$DEBUG_KEY_EVENTS" -eq 0 ]]; then
+    clear
+  fi
+}
+
+append_debug_log() {
+  local action="$1"
+  local raw="$2"
+  local hex="$3"
+  printf '[debug] raw=%q hex=%s action=%s\n' "$raw" "$hex" "$action" >>"$DEBUG_KEY_LOG"
+}
+
+log_key_event() {
+  local action="$1"
+  local raw="$2"
+  local hex
+
+  [[ "$DEBUG_KEY_EVENTS" -eq 1 ]] || return 0
+  hex="$(printf '%s' "$raw" | od -An -tx1 | tr -d '[:space:]')"
+  append_debug_log "$action" "$raw" "$hex"
+  printf '[debug] raw=%q hex=%s action=%s\n' "$raw" "$hex" "$action" >&2
 }
 
 on_interrupt() {
@@ -71,42 +103,72 @@ has_any_backup() {
 read_key() {
   local key
   IFS= read -rsn1 key || return 1
+  local action="other"
+  local seq=""
 
   if [[ "$key" == $'\x1b' ]]; then
-    local seq
-    IFS= read -rsn2 -t 1 seq || { echo "other"; return 0; }
+    IFS= read -rsn2 -t 1 seq || true
     case "$seq" in
-      "[A"|"OA") echo "up" ;;
-      "[B"|"OB") echo "down" ;;
-      *) echo "other" ;;
+      "[A"|"OA") action="up" ;;
+      "[B"|"OB") action="down" ;;
+      *) action="other" ;;
     esac
+    log_key_event "$action" "$key$seq"
+    echo "$action"
     return 0
   fi
 
   local key_hex
   key_hex="$(printf '%s' "$key" | od -An -tx1 | tr -d '[:space:]')"
-  if [[ "$key_hex" == "e38593" ]]; then
-    echo "down"
-    return 0
+  if [[ "$key_hex" == "e3" ]]; then
+    IFS= read -rsn2 -t 1 seq || true
+    key+="$seq"
+    key_hex="$(printf '%s' "$key" | od -An -tx1 | tr -d '[:space:]')"
   fi
-  if [[ "$key_hex" == "e3858f" ]]; then
-    echo "up"
-    return 0
+  if [[ "$key_hex" == "e38593" ]]; then
+    action="down"
+  elif [[ "$key_hex" == "e3858f" ]]; then
+    action="up"
   fi
 
-  case "$key" in
-    " ") echo "space" ;;
-    $'\n'|"") echo "enter" ;;
-    j|J) echo "down" ;;
-    k|K) echo "up" ;;
-    q|Q) echo "quit" ;;
-    *) echo "other" ;;
-  esac
+  if [[ "$action" == "other" ]]; then
+    case "$key" in
+      " ") action="space" ;;
+      $'\n'|"") action="enter" ;;
+      j|J) action="down" ;;
+      k|K) action="up" ;;
+      q|Q) action="quit" ;;
+      *) action="other" ;;
+    esac
+  fi
+  log_key_event "$action" "$key"
+  echo "$action"
+}
+
+parse_args() {
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --debug-keys)
+        DEBUG_KEY_EVENTS=1
+        mkdir -p "$HOME/.bootstrap.mac"
+        : >"$DEBUG_KEY_LOG"
+        ;;
+      -h|--help)
+        usage
+        exit 0
+        ;;
+      *)
+        usage
+        exit 1
+        ;;
+    esac
+    shift
+  done
 }
 
 draw_mode_menu() {
   local cursor="$1"
-  clear
+  refresh_ui
   printf "백업이 존재합니다. 진행 모드를 선택하세요.\n\n"
   printf "조작: ↑/↓ 또는 j/k 이동, Enter 선택, q 취소\n\n"
 
@@ -155,7 +217,7 @@ draw_checkbox_menu() {
   local cursor="$1"
   local message="${2:-}"
 
-  clear
+  refresh_ui
   printf "적용할 항목을 선택하세요.\n\n"
   printf "조작: ↑/↓ 또는 j/k 이동, Space 체크, Enter 실행, q 취소\n"
   if [[ "$MODE" == "reset_apply" ]]; then
@@ -253,7 +315,7 @@ build_execution_steps() {
 }
 
 print_summary() {
-  clear
+  refresh_ui
   printf "실행 계획\n\n"
   if [[ "$MODE" == "reset_apply" ]]; then
     printf "- 모드: 초기화 후 적용\n"
@@ -294,7 +356,7 @@ run_steps() {
   local total="${#STEP_CMDS[@]}"
   local idx
 
-  clear
+  refresh_ui
   printf "실행을 시작합니다.\n\n"
 
   for idx in "${!STEP_CMDS[@]}"; do
@@ -312,6 +374,7 @@ run_steps() {
 }
 
 main() {
+  parse_args "$@"
   require_tty
   require_dependencies
 
