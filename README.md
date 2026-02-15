@@ -44,28 +44,16 @@
 
 ## 새 기능 추가
 
-1. 기능 디렉토리 생성
+1. `features/_template`을 새 디렉토리로 복사하고 (`features/00X_...`)
+2. `feature.sh`에서 `FEATURE_ID`/`FEATURE_LABEL`/`FEATURE_ENABLED`와 스크립트 경로를 설정
+3. `set.sh`, `reset.sh`에 `chmod +x` 권한 부여
+4. `run.sh` 실행 시 새 행이 자동 노출됨
 
-```bash
-mkdir features/004_my_new_feature
-cp -R features/_template/* features/004_my_new_feature/
-```
+정렬은 `features` 폴더 이름 오름차순(`001_...`, `002_...`) 기준, `_template`은 제외됨.
 
-2. `/features/004_my_new_feature/set.sh`, `reset.sh`, `feature.sh`, `description` 수정
+### feature.sh 최소 필드
 
-   - `feature.sh`의 `FEATURE_ID`를 번호 접두사 포함한 고유 ID로 변경
-   - `FEATURE_ENABLED=1`이면 기본 노출, `0`이면 run.sh 메뉴에서 숨김
-
-3. `set.sh`, `reset.sh`는 실행권한 필요
-
-```bash
-chmod +x features/004_my_new_feature/{set.sh,reset.sh}
-```
-
-4. `run.sh`를 다시 실행하면 새 기능이 자동으로 메뉴에 노출됩니다.
-
-실행 순서는 `features/` 디렉토리 이름 오름차순(`001_...`, `002_...`)으로 결정되며,
-`features/_template`은 자동으로 건너뜁니다.
+- `FEATURE_ID`, `FEATURE_LABEL`, `FEATURE_DESCRIPTION_PATH`, `FEATURE_APPLY_SCRIPT`, `FEATURE_RESET_SCRIPT`, `FEATURE_ENABLED`
 
 ### feature.sh 체크리스트
 
