@@ -7,7 +7,6 @@
 모든 백업은 `~/.bootstrap.mac/backups`에서 관리됩니다.
 
 - `original`: 설정 변경 전 최초 상태(restore defaults 기준)
-- `snapshot`: 더 이상 생성/복원에 사용하지 않음
 
 복원은 `original`만 사용해 수행합니다.
 
@@ -19,8 +18,6 @@
 - `~/.bootstrap.mac/backups/keyrepeat/`
   - `original.env`
   - `original.meta`
-
-기존 `snapshots/` 디렉터리가 남아 있어도 자동 사용/삭제하지 않습니다.
 
 ## 포함된 항목
 
