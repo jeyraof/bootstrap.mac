@@ -10,6 +10,7 @@ MODE="apply_only"
 DEBUG_KEY_EVENTS=0
 DEBUG_KEY_LOG="$HOME/.bootstrap.mac/run_debug_keys.log"
 SELECTED=(0 0 0)
+ORIG_STTY_SETTINGS=""
 
 ACTION_LABELS=(
   "입력 소스 전환 Shift + Space 적용"
@@ -30,6 +31,9 @@ STEP_LABELS=()
 STEP_CMDS=()
 
 cleanup() {
+  if [[ -n "${ORIG_STTY_SETTINGS}" ]]; then
+    stty "$ORIG_STTY_SETTINGS" >/dev/null 2>&1 || true
+  fi
   tput cnorm >/dev/null 2>&1 || true
   stty echo >/dev/null 2>&1 || true
 }
@@ -168,6 +172,11 @@ parse_args() {
 
 disable_input_echo() {
   stty -echo >/dev/null 2>&1 || true
+}
+
+prepare_terminal() {
+  ORIG_STTY_SETTINGS="$(stty -g)"
+  stty -echo -icanon min 1 time 0 >/dev/null 2>&1 || true
 }
 
 draw_mode_menu() {
@@ -383,6 +392,7 @@ main() {
   require_dependencies
 
   tput civis >/dev/null 2>&1 || true
+  prepare_terminal
   disable_input_echo
 
   if has_any_backup; then
