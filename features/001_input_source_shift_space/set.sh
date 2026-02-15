@@ -113,14 +113,19 @@ set_hotkey_entry() {
   "$PLISTBUDDY" -c "Add :AppleSymbolicHotKeys:$key:value:parameters:2 integer $p2" "$PREF_PLIST"
 }
 
+sync_symbolichotkeys_to_defaults() {
+  echo "▶ com.apple.symbolichotkeys 도메인 동기화를 수행합니다..."
+  killall cfprefsd >/dev/null 2>&1 || true
+  killall SystemUIServer >/dev/null 2>&1 || true
+  defaults import "$DOMAIN" "$PREF_PLIST"
+}
+
 echo "▶ 60번 (이전 입력 소스)을 비활성화합니다..."
 set_enabled_only 60 NO
 
 echo "▶ 61번 (다음 입력 소스)을 Shift+Space로 설정합니다..."
 set_hotkey_entry 61 YES 32 49 131072
-
-# 설정 즉시 반영 시도
-killall cfprefsd >/dev/null 2>&1 || true
+sync_symbolichotkeys_to_defaults
 killall SystemUIServer >/dev/null 2>&1 || true
 
 echo ""

@@ -91,10 +91,17 @@ set_hotkey_entry() {
   "$PLISTBUDDY" -c "Add :AppleSymbolicHotKeys:$key:value:parameters:2 integer $p2" "$PREF_PLIST"
 }
 
+sync_symbolichotkeys_to_defaults() {
+  echo "▶ com.apple.symbolichotkeys 도메인 동기화를 수행합니다..."
+  killall cfprefsd >/dev/null 2>&1 || true
+  killall SystemUIServer >/dev/null 2>&1 || true
+  defaults import "$DOMAIN" "$PREF_PLIST"
+}
+
 echo "▶ Spotlight(64번)를 Ctrl+Space로 설정합니다..."
 set_hotkey_entry 64 YES 32 49 262144
 
-killall cfprefsd >/dev/null 2>&1 || true
+sync_symbolichotkeys_to_defaults
 killall SystemUIServer >/dev/null 2>&1 || true
 
 echo ""
