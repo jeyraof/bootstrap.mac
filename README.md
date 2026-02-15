@@ -61,11 +61,11 @@ curl -fsSL https://leejaeyoung.org/bootstrap.mac.sh | bash
 
 현재 기능 목록:
 
-| ordinal | 설명 |
-|---|---|
-| `001` | 입력 소스 전환 Shift + Space 적용 |
-| `002` | Spotlight Ctrl + Space 적용 |
-| `003` | Key Repeat 빠르게 적용 |
+| ordinal | name | 설명 |
+|---|---|---|
+| `001` | `001_input_source_shift_space` | 입력 소스 전환 Shift + Space 적용 |
+| `002` | `002_spotlight_ctrl_space` | Spotlight Ctrl + Space 적용 |
+| `003` | `003_key_repeat_fast` | Key Repeat 빠르게 적용 |
 
 `run.sh`에서 동적으로 메뉴를 구성하며, 인터랙티브로만 실행할 수 있습니다.
 
