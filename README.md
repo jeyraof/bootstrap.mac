@@ -24,6 +24,13 @@
 
 ## 포함된 항목
 
+- `run.sh`
+  - 체크박스 기반 인터랙티브 실행기입니다.
+  - `space`로 항목을 체크하고 `enter`로 실행합니다.
+  - 백업(`original`)이 없으면 바로 적용 항목을 선택합니다.
+  - 백업이 있으면 `초기화 후 적용` 또는 `바로 새 적용` 모드를 먼저 선택합니다.
+  - `초기화 후 적용`에서는 선택 항목과 관련된 복원만 선행한 뒤 설정을 적용합니다.
+
 - `set_input_source_shift_space.sh`
   - 입력 소스 전환 단축키를 조정합니다.
   - `60번`(이전 입력 소스) 단축키를 비활성화합니다.
@@ -49,14 +56,22 @@
   - `keyrepeat`의 `original.env`로 restore defaults를 수행합니다.
   - 인자 없이 실행합니다.
 
-- `set_capslock_to_control.sh`
-  - `ByHost .GlobalPreferences`의 키보드 modifier 매핑을 직접 수정해 `Caps Lock`을 `Left Control`로 매핑합니다.
-  - 연결된 키보드 ID를 자동 탐지해 각 장치에 적용합니다.
-  - 이 스크립트는 현재 통합 백업 체계 범위에서 제외되어 있습니다.
-
 ## 사용 방법
 
-### 1) 입력 소스 단축키를 Shift + Space로 설정
+### 1) 인터랙티브로 한 번에 선택 적용 (`run.sh`)
+
+```bash
+./run.sh
+```
+
+키 조작:
+
+- `↑/↓` 또는 `j/k`: 이동
+- `space`: 체크/해제
+- `enter`: 실행
+- `q`: 취소
+
+### 2) 입력 소스 단축키를 Shift + Space로 설정
 
 ```bash
 ./set_input_source_shift_space.sh
@@ -68,25 +83,25 @@
 ./set_input_source_shift_space.sh --refresh-original
 ```
 
-### 2) Spotlight를 Ctrl + Space로 설정
+### 3) Spotlight를 Ctrl + Space로 설정
 
 ```bash
 ./set_spotlight_ctrl_space.sh
 ```
 
-### 3) Key Repeat를 빠르게 설정 (Initial=15, Repeat=1)
+### 4) Key Repeat를 빠르게 설정 (Initial=15, Repeat=1)
 
 ```bash
 ./set_key_repeat_fast.sh
 ```
 
-### 4) SymbolicHotKeys restore defaults
+### 5) SymbolicHotKeys restore defaults
 
 ```bash
 ./restore_symbolichotkeys.sh
 ```
 
-### 5) Key Repeat restore defaults
+### 6) Key Repeat restore defaults
 
 ```bash
 ./restore_key_repeat.sh
@@ -104,8 +119,5 @@
 
 1. macOS 초기 설정 완료
 2. 터미널에서 저장소 클론
-3. `set_input_source_shift_space.sh` 실행
-4. `set_spotlight_ctrl_space.sh` 실행
-5. `set_capslock_to_control.sh` 실행
-6. 필요 시 `set_key_repeat_fast.sh` 실행
-7. 필요 시 `restore_symbolichotkeys.sh`, `restore_key_repeat.sh`로 defaults 복원
+3. `run.sh` 실행 후 필요한 항목 체크하여 적용
+4. 필요 시 개별 스크립트(`set_*`, `restore_*`)로 추가 조정
