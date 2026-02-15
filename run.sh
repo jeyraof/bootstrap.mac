@@ -83,23 +83,15 @@ read_key() {
     return 0
   fi
 
-  if [[ "$key" == $'\xE3' ]]; then
-    local hangul
-    IFS= read -rsn2 -t 1 hangul || { echo "other"; return 0; }
-    case "$key$hangul" in
-      $'\u3153')
-        echo "down"
-        return 0
-        ;;
-      $'\u314F')
-        echo "up"
-        return 0
-        ;;
-      *)
-        echo "other"
-        return 0
-        ;;
-    esac
+  local key_hex
+  key_hex="$(printf '%s' "$key" | od -An -tx1 | tr -d '[:space:]')"
+  if [[ "$key_hex" == "e38593" ]]; then
+    echo "down"
+    return 0
+  fi
+  if [[ "$key_hex" == "e3858f" ]]; then
+    echo "up"
+    return 0
   fi
 
   case "$key" in
@@ -107,8 +99,6 @@ read_key() {
     $'\n'|"") echo "enter" ;;
     j|J) echo "down" ;;
     k|K) echo "up" ;;
-    $'\u3153') echo "down" ;;
-    $'\u314F') echo "up" ;;
     q|Q) echo "quit" ;;
     *) echo "other" ;;
   esac
