@@ -218,7 +218,7 @@ draw_mode_menu() {
   local i marker
   for i in 0 1; do
     marker=" "
-    [[ "$i" -eq "$cursor" ]] && marker=">")
+    [[ "$i" -eq "$cursor" ]] && marker=">"
     printf "%s %s\n" "$marker" "${options[$i]}"
   done
 }
