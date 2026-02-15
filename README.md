@@ -2,6 +2,35 @@
 
 맥 최초 셋업 시 자주 필요한 키보드 단축키/키 매핑 설정을 자동화하는 스크립트 모음입니다.
 
+## 사용 방법
+
+### 원격 실행 엔트리포인트
+
+```bash
+curl -fsSL https://leejaeyoung.org/bootstrap.mac.sh | bash
+```
+
+- 위 스크립트는 저장소를 내려받아 실행하고 `run.sh`를 바로 실행합니다.
+- `run.sh`가 TTY 기반이라, 원격 실행 스크립트는 `/dev/tty`로 상호작용을 이어받습니다.
+- 실행 후에는 임시로 받아온 파일을 정리하므로 설정 파일을 제외하면 사용자 홈에 잔재를 남기지 않습니다.
+
+- 기본적으로 HTTPS + `raw.githubusercontent.com`로 302 리다이렉트를 따라갑니다.
+
+### 인터랙티브 실행 (`run.sh`)
+
+```bash
+./run.sh
+```
+
+키 조작:
+
+- `↑/↓` 또는 `j/k`: 이동
+- `space`: 체크/해제
+- `enter`: 실행
+- `q`: 취소
+
+개별 `set.sh`/`reset.sh`는 기능 단위 내부 실행 진입점이므로 일반 사용자 안내 대상에서 제외합니다.
+
 ## 백업 정책 (restore defaults 전용)
 
 모든 백업은 `~/.bootstrap.mac/backups`에서 관리됩니다.
@@ -49,21 +78,16 @@
 
 정렬은 `features` 폴더 이름 오름차순(`001_...`, `002_...`) 기준, `_template`은 제외됨.
 
-### feature.sh 최소 필드
+### feature.sh 최소 필수 필드
 
-- `FEATURE_ID`, `FEATURE_LABEL`, `FEATURE_DESCRIPTION_PATH`, `FEATURE_APPLY_SCRIPT`, `FEATURE_RESET_SCRIPT`, `FEATURE_ENABLED`
-
-### feature.sh 체크리스트
-
-`feature.sh`에서 다음 항목은 필수이며, 빠지면 `run.sh` 실행 시 즉시 실패합니다.
-
-- `FEATURE_ID`: 기능 고유 ID (권장: `004_key_repeat_slow`)
-- `FEATURE_LABEL`: 메뉴 라벨
-- `FEATURE_DESCRIPTION_PATH`: 설명 파일 경로
-- `FEATURE_APPLY_SCRIPT`: 적용 스크립트 경로
-- `FEATURE_RESET_SCRIPT`: 복원 스크립트 경로
-- `FEATURE_ENABLED`: 기본 `1`(노출), `0`(숨김)
-- `FEATURE_DESCRIPTION_PATH`는 실행 시 읽을 수 있는 텍스트 파일이어야 함
+| 항목 | 설명 | 필수 |
+|---|---|---|
+| `FEATURE_ID` | 기능 고유 ID (`001_input_source_shift_space` 등) | 필수 |
+| `FEATURE_LABEL` | 메뉴 라벨 | 필수 |
+| `FEATURE_DESCRIPTION_PATH` | 설명 파일 경로 (텍스트 파일) | 필수 |
+| `FEATURE_APPLY_SCRIPT` | 적용 스크립트 경로 | 필수 |
+| `FEATURE_RESET_SCRIPT` | 복원 스크립트 경로 | 필수 |
+| `FEATURE_ENABLED` | `1`: 노출, `0`: 숨김 | 기본값 1 권장 |
 
 예시:
 
@@ -77,35 +101,6 @@ FEATURE_ENABLED=1
 ```
 
 `set.sh`/`reset.sh`는 독립 실행 가능한 형태여야 합니다.
-
-## 사용 방법
-
-### 원격 실행 엔트리포인트
-
-```bash
-curl -fsSL https://leejaeyoung.org/bootstrap.mac.sh | bash
-```
-
-- 위 스크립트는 저장소를 내려받아 실행하고 `run.sh`를 바로 실행합니다.
-- `run.sh`가 TTY 기반이라, 원격 실행 스크립트는 `/dev/tty`를 통해 상호작용을 이어받아 메뉴 선택이 가능합니다.
-- 실행 후에는 임시로 받아온 파일을 정리하므로 설정 파일을 제외하면 사용자 홈에 잔재를 남기지 않습니다.
-
-기본적으로 HTTPS + `raw.githubusercontent.com`로 302 리다이렉트를 따라갑니다.
-
-### 1) 인터랙티브로 한 번에 선택 적용 (`run.sh`)
-
-```bash
-./run.sh
-```
-
-키 조작:
-
-- `↑/↓` 또는 `j/k`: 이동
-- `space`: 체크/해제
-- `enter`: 실행
-- `q`: 취소
-
-개별 `set.sh`/`reset.sh`는 기능 단위 내부 실행 진입점이므로 일반 사용자 안내 대상에서 제외합니다.
 
 ## 주의사항
 
