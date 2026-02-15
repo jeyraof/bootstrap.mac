@@ -20,7 +20,7 @@
 ### 1) 입력 소스 단축키를 Shift + Space로 설정
 
 ```bash
-bash ./set_input_source_shift_space.sh
+./set_input_source_shift_space.sh
 ```
 
 실행 후 출력되는 `백업 파일 경로`를 기록해두세요.
@@ -28,7 +28,7 @@ bash ./set_input_source_shift_space.sh
 ### 2) 기존 설정으로 복원
 
 ```bash
-bash ./restore_symbolichotkeys.sh ~/Library/Preferences/com.apple.symbolichotkeys.plist.backup-YYYYMMDD-HHMMSS
+./restore_symbolichotkeys.sh ~/Library/Preferences/com.apple.symbolichotkeys.plist.backup-YYYYMMDD-HHMMSS
 ```
 
 ## 주의사항
@@ -36,6 +36,7 @@ bash ./restore_symbolichotkeys.sh ~/Library/Preferences/com.apple.symbolichotkey
 - 이 스크립트는 macOS 사용자 설정 파일(`~/Library/Preferences`)을 직접 수정합니다.
 - 적용이 즉시 반영되지 않으면 로그아웃/로그인 또는 재부팅이 필요할 수 있습니다.
 - macOS 버전에 따라 SymbolicHotKeys 내부 구조가 다를 수 있으니, 반드시 백업 파일을 확인한 뒤 적용하세요.
+- 실행 권한이 없다면 `chmod +x ./*.sh`를 먼저 실행하세요.
 
 ## 권장 실행 순서 (신규 Mac)
 
