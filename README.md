@@ -24,13 +24,11 @@
 > 작업 전 규칙: `AGENTS.md`를 먼저 확인하세요.  
 > AI Agent 기반 자동화/수정 시 적용/검토/복원 규칙이 정의되어 있습니다.
 
-- `run.sh`
-  - 체크박스 기반 인터랙티브 실행기
-  - 백업(`original`) 존재 시 모드를 선택 후 실행
-- `features/`
-  - 기능 단위 디렉토리
-  - 각 기능은 `feature.sh`, `description`, `set.sh`, `reset.sh`를 가짐
-  - `run.sh`는 `features`의 메타데이터만 읽어 동적으로 메뉴를 구성
+| 구성 | 설명 |
+|---|---|
+| `run.sh` | 인터랙티브 실행기. 백업 존재 시 모드 선택 후 적용/복원 |
+| `features/` | 기능 단위 디렉토리 (`feature.sh`, `set.sh`, `reset.sh`, `description`) |
+| `run.sh` 동작 | `features/*/feature.sh` 메타를 읽어 메뉴 동적 구성 |
 
 현재 기능 목록:
 
