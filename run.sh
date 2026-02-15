@@ -73,25 +73,46 @@ read_key() {
   IFS= read -rsn1 key || return 1
 
   if [[ "$key" == $'\x1b' ]]; then
-    IFS= read -rsn1 -t 0.01 key || true
-    if [[ "$key" == "[" ]]; then
-      IFS= read -rsn1 -t 0.01 key || true
-      case "$key" in
-        A) echo "up" ;;
-        B) echo "down" ;;
-        *) echo "other" ;;
-      esac
+    local seq c
+    IFS= read -rsn1 -t 0.05 seq || return 0
+    if [[ "$seq" == "[" ]]; then
+      IFS= read -rsn1 -t 0.05 seq || return 0
+      if [[ "$seq" == [AB] ]]; then
+        [[ "$seq" == "A" ]] && echo "up" || echo "down"
+        return 0
+      fi
+
+      if [[ "$seq" =~ [0-9] ]]; then
+        while IFS= read -rsn1 -t 0.05 c; do
+          [[ "$c" == "A" || "$c" == "B" ]] && { echo "$([ "$c" = "A" ] && echo up || echo down)"; return 0; }
+          [[ "$c" == [a-zA-Z] ]] && break
+        done
+      fi
+
+      echo "other"
       return 0
     fi
-    echo "other"
+
+    if [[ "$seq" == "O" ]]; then
+      IFS= read -rsn1 -t 0.05 seq || return 0
+      case "$seq" in
+        A) echo "up" ;;
+        B) echo "down" ;;
+        C) echo "right" ;;
+        D) echo "left" ;;
+        *) echo "other" ;;
+      esac
+    fi
     return 0
   fi
 
   case "$key" in
     " ") echo "space" ;;
-    "") echo "enter" ;;
+    $'\n'|"") echo "enter" ;;
     j|J) echo "down" ;;
     k|K) echo "up" ;;
+    $'\u3153') echo "down" ;;
+    $'\u314F') echo "up" ;;
     q|Q) echo "quit" ;;
     *) echo "other" ;;
   esac
