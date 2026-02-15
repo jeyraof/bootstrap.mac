@@ -92,8 +92,7 @@ FEATURE_RESET_SCRIPT="$SCRIPT_DIR/reset.sh"
 FEATURE_ENABLED=1
 ```
 
-`set.sh`/`reset.sh`는 `run.sh`뿐 아니라 기존 호환 래퍼(`/set_*`, `/restore_*`)에서도 직접 호출될 수 있으므로,
-반드시 독립 실행 가능한 형태로 구현합니다.
+`set.sh`/`reset.sh`는 독립 실행 가능한 형태여야 합니다.
 
 ## 사용 방법
 
