@@ -73,37 +73,33 @@ read_key() {
   IFS= read -rsn1 key || return 1
 
   if [[ "$key" == $'\x1b' ]]; then
-    local seq c
-    IFS= read -rsn1 -t 0.05 seq || return 0
-    if [[ "$seq" == "[" ]]; then
-      IFS= read -rsn1 -t 0.05 seq || return 0
-      if [[ "$seq" == [AB] ]]; then
-        [[ "$seq" == "A" ]] && echo "up" || echo "down"
-        return 0
-      fi
-
-      if [[ "$seq" =~ [0-9] ]]; then
-        while IFS= read -rsn1 -t 0.05 c; do
-          [[ "$c" == "A" || "$c" == "B" ]] && { echo "$([ "$c" = "A" ] && echo up || echo down)"; return 0; }
-          [[ "$c" == [a-zA-Z] ]] && break
-        done
-      fi
-
-      echo "other"
-      return 0
-    fi
-
-    if [[ "$seq" == "O" ]]; then
-      IFS= read -rsn1 -t 0.05 seq || return 0
-      case "$seq" in
-        A) echo "up" ;;
-        B) echo "down" ;;
-        C) echo "right" ;;
-        D) echo "left" ;;
-        *) echo "other" ;;
-      esac
-    fi
+    local seq
+    IFS= read -rsn2 -t 0.12 seq || { echo "other"; return 0; }
+    case "$seq" in
+      "[A"|"OA") echo "up" ;;
+      "[B"|"OB") echo "down" ;;
+      *) echo "other" ;;
+    esac
     return 0
+  fi
+
+  if [[ "$key" == $'\xE3' ]]; then
+    local hangul
+    IFS= read -rsn2 -t 0.12 hangul || { echo "other"; return 0; }
+    case "$key$hangul" in
+      $'\u3153')
+        echo "down"
+        return 0
+        ;;
+      $'\u314F')
+        echo "up"
+        return 0
+        ;;
+      *)
+        echo "other"
+        return 0
+        ;;
+    esac
   fi
 
   case "$key" in
