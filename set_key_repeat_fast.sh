@@ -1,32 +1,61 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=backup_common.sh
+source "$SCRIPT_DIR/backup_common.sh"
+
 TARGET_INITIAL_KEY_REPEAT=15
 TARGET_KEY_REPEAT=1
 
-PREF_DIR="$HOME/Library/Preferences"
-TS="$(date +%Y%m%d-%H%M%S)"
-BACKUP_FILE="$PREF_DIR/.GlobalPreferences.keyrepeat.backup-$TS"
+REFRESH_ORIGINAL=0
+
+usage() {
+  echo "사용 방법:"
+  echo "$0 [--refresh-original]"
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --refresh-original)
+      REFRESH_ORIGINAL=1
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      usage
+      exit 1
+      ;;
+  esac
+  shift
+done
 
 read_or_unset() {
   local key="$1"
   defaults read -g "$key" 2>/dev/null || echo "UNSET"
 }
 
-CURRENT_INITIAL_KEY_REPEAT="$(read_or_unset InitialKeyRepeat)"
-CURRENT_KEY_REPEAT="$(read_or_unset KeyRepeat)"
-
-cat >"$BACKUP_FILE" <<EOF
-# key repeat backup
-# created_at=$TS
-InitialKeyRepeat=$CURRENT_INITIAL_KEY_REPEAT
-KeyRepeat=$CURRENT_KEY_REPEAT
+write_keyrepeat_backup() {
+  local out="$1"
+  local current_initial_key_repeat
+  local current_key_repeat
+  current_initial_key_repeat="$(read_or_unset InitialKeyRepeat)"
+  current_key_repeat="$(read_or_unset KeyRepeat)"
+  cat >"$out" <<EOF
+InitialKeyRepeat=$current_initial_key_repeat
+KeyRepeat=$current_key_repeat
 EOF
+}
 
-echo "▶ 현재 key repeat 설정을 백업합니다..."
-echo "▶ 백업 파일: $BACKUP_FILE"
-echo "  - InitialKeyRepeat=$CURRENT_INITIAL_KEY_REPEAT"
-echo "  - KeyRepeat=$CURRENT_KEY_REPEAT"
+save_original_once "keyrepeat" "env" "$(basename "$0")" "$REFRESH_ORIGINAL" write_keyrepeat_backup
+SNAPSHOT_PATH="$(save_snapshot "keyrepeat" "env" "$(basename "$0")" write_keyrepeat_backup)"
+
+echo "▶ snapshot 백업 저장: $SNAPSHOT_PATH"
+echo "▶ 현재값:"
+echo "  - InitialKeyRepeat=$(read_or_unset InitialKeyRepeat)"
+echo "  - KeyRepeat=$(read_or_unset KeyRepeat)"
 
 echo "▶ key repeat 설정을 적용합니다..."
 defaults write -g InitialKeyRepeat -int "$TARGET_INITIAL_KEY_REPEAT"
