@@ -96,6 +96,18 @@ FEATURE_ENABLED=1
 
 ## 사용 방법
 
+### 원격 실행 엔트리포인트
+
+```bash
+curl -fsSL https://leejaeyoung.org/bootstrap.mac.sh | bash
+```
+
+- 위 스크립트는 저장소를 내려받아 실행하고 `run.sh`를 바로 실행합니다.
+- `run.sh`가 TTY 기반이라, 원격 실행 스크립트는 `/dev/tty`를 통해 상호작용을 이어받아 메뉴 선택이 가능합니다.
+- 실행 후에는 임시로 받아온 파일을 정리하므로 설정 파일을 제외하면 사용자 홈에 잔재를 남기지 않습니다.
+
+기본적으로 HTTPS + `raw.githubusercontent.com`로 302 리다이렉트를 따라갑니다.
+
 ### 1) 인터랙티브로 한 번에 선택 적용 (`run.sh`)
 
 ```bash
