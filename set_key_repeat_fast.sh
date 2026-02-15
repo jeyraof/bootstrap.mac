@@ -50,9 +50,7 @@ EOF
 }
 
 save_original_once "keyrepeat" "env" "$(basename "$0")" "$REFRESH_ORIGINAL" write_keyrepeat_backup
-SNAPSHOT_PATH="$(save_snapshot "keyrepeat" "env" "$(basename "$0")" write_keyrepeat_backup)"
-
-echo "▶ snapshot 백업 저장: $SNAPSHOT_PATH"
+echo "▶ restore defaults용 original 백업을 확인했습니다."
 echo "▶ 현재값:"
 echo "  - InitialKeyRepeat=$(read_or_unset InitialKeyRepeat)"
 echo "  - KeyRepeat=$(read_or_unset KeyRepeat)"

@@ -13,7 +13,7 @@ ensure_target_dirs() {
   local target="$1"
   local root
   root="$(backup_root)"
-  mkdir -p "$root/$target/snapshots" || {
+  mkdir -p "$root/$target" || {
     echo "❌ 백업 디렉터리를 생성하지 못했습니다: $root/$target" >&2
     return 1
   }
@@ -23,13 +23,6 @@ original_path() {
   local target="$1"
   local ext="$2"
   echo "$(backup_root)/$target/original.$ext"
-}
-
-snapshot_path() {
-  local target="$1"
-  local ext="$2"
-  local ts="$3"
-  echo "$(backup_root)/$target/snapshots/$ts.$ext"
 }
 
 write_meta() {
@@ -69,94 +62,6 @@ save_original_once() {
   else
     echo "▶ original 백업 유지: $original"
   fi
-}
-
-save_snapshot() {
-  local target="$1"
-  local ext="$2"
-  local script_name="$3"
-  local writer_fn="$4"
-  local ts
-  local snapshot
-  local meta
-
-  ensure_target_dirs "$target"
-  ts="$(ts_now)"
-  snapshot="$(snapshot_path "$target" "$ext" "$ts")"
-  meta="$(backup_root)/$target/snapshots/$ts.meta"
-
-  "$writer_fn" "$snapshot"
-  write_meta "$meta" "snapshot" "$target" "$ts" "$script_name"
-
-  echo "$snapshot"
-}
-
-list_backups() {
-  local target="$1"
-  local ext="$2"
-  local original
-  local snapshot_dir
-  local idx
-  local file
-  local ts
-
-  original="$(original_path "$target" "$ext")"
-  snapshot_dir="$(backup_root)/$target/snapshots"
-
-  if [[ -f "$original" ]]; then
-    echo "1|original|original|$original"
-  fi
-
-  idx=2
-  if [[ -d "$snapshot_dir" ]]; then
-    while IFS= read -r file; do
-      ts="$(basename "$file")"
-      ts="${ts%.$ext}"
-      echo "$idx|snapshot|$ts|$file"
-      idx=$((idx + 1))
-    done < <(find "$snapshot_dir" -maxdepth 1 -type f -name "*.$ext" | sort -r)
-  fi
-}
-
-backup_path_by_index() {
-  local target="$1"
-  local ext="$2"
-  local index="$3"
-
-  list_backups "$target" "$ext" | awk -F'|' -v idx="$index" '$1 == idx { print $4; exit }'
-}
-
-interactive_pick_backup() {
-  local target="$1"
-  local ext="$2"
-  local entries
-  local line
-  local idx
-  local kind
-  local ts
-  local path
-  local selected
-
-  mapfile -t entries < <(list_backups "$target" "$ext")
-  if [[ ${#entries[@]} -eq 0 ]]; then
-    echo "❌ 복원 가능한 백업이 없습니다. target=$target" >&2
-    return 1
-  fi
-
-  echo "복원할 백업을 선택하세요:"
-  for line in "${entries[@]}"; do
-    IFS='|' read -r idx kind ts path <<<"$line"
-    echo "  [$idx] $kind @ $ts -> $path"
-  done
-
-  read -r -p "번호를 입력하세요: " selected
-  path="$(backup_path_by_index "$target" "$ext" "$selected")"
-  if [[ -z "$path" ]]; then
-    echo "❌ 잘못된 선택입니다: $selected" >&2
-    return 1
-  fi
-
-  echo "$path"
 }
 
 validate_backup_file_exists() {

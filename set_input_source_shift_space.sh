@@ -49,9 +49,7 @@ EOF
 }
 
 save_original_once "symbolichotkeys" "plist" "$(basename "$0")" "$REFRESH_ORIGINAL" write_symbolichotkeys_backup
-SNAPSHOT_PATH="$(save_snapshot "symbolichotkeys" "plist" "$(basename "$0")" write_symbolichotkeys_backup)"
-
-echo "▶ snapshot 백업 저장: $SNAPSHOT_PATH"
+echo "▶ restore defaults용 original 백업을 확인했습니다."
 
 echo "▶ 60번 (이전 입력 소스)을 비활성화합니다..."
 defaults write "$DOMAIN" AppleSymbolicHotKeys -dict-add 60 \
