@@ -55,7 +55,7 @@ curl -fsSL https://leejaeyoung.org/bootstrap.mac.sh | bash
 
 | 구성 | 설명 |
 |---|---|
-| `run.sh` | 인터랙티브 실행기. 백업 존재 시 모드 선택 후 적용/복원 |
+| `run.sh` | 인터랙티브 실행기. 선택한 항목의 백업 존재 유무를 기반으로 모드/복원 대상 결정 |
 | `features/` | 기능 단위 디렉토리 (`feature.sh`, `set.sh`, `reset.sh`, `description`) |
 | `run.sh` 동작 | `features/*/feature.sh` 메타를 읽어 메뉴 동적 구성 |
 
@@ -87,6 +87,7 @@ curl -fsSL https://leejaeyoung.org/bootstrap.mac.sh | bash
 | `FEATURE_APPLY_SCRIPT` | 적용 스크립트 경로 | 필수 |
 | `FEATURE_RESET_SCRIPT` | 복원 스크립트 경로 | 필수 |
 | `FEATURE_ENABLED` | `1`: 노출, `0`: 숨김 | 기본값 1 권장 |
+| `FEATURE_BACKUP_TARGET` | 백업 대상 이름(`symbolichotkeys`, `keyrepeat` 등) | 권장 |
 
 예시:
 
@@ -96,6 +97,7 @@ FEATURE_DESCRIPTION_PATH="$SCRIPT_DIR/description"
 FEATURE_APPLY_SCRIPT="$SCRIPT_DIR/set.sh"
 FEATURE_RESET_SCRIPT="$SCRIPT_DIR/reset.sh"
 FEATURE_ENABLED=1
+FEATURE_BACKUP_TARGET="symbolichotkeys"
 ```
 
 `set.sh`/`reset.sh`는 독립 실행 가능한 형태여야 합니다.

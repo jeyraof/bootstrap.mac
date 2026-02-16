@@ -13,6 +13,7 @@ FEATURE_LABELS=()
 FEATURE_DESCRIPTIONS=()
 FEATURE_APPLY_CMDS=()
 FEATURE_RESET_CMDS=()
+FEATURE_HAS_BACKUP=()
 
 STEP_LABELS=()
 STEP_CMDS=()
@@ -83,9 +84,10 @@ load_features() {
     local apply_script="${FEATURE_APPLY_SCRIPT:-}"
     local reset_script="${FEATURE_RESET_SCRIPT:-}"
     local enabled="${FEATURE_ENABLED:-1}"
+    local backup_target="${FEATURE_BACKUP_TARGET:-}"
 
     if [[ "$enabled" != "1" ]]; then
-      unset FEATURE_LABEL FEATURE_DESCRIPTION_PATH FEATURE_APPLY_SCRIPT FEATURE_RESET_SCRIPT FEATURE_ENABLED FEATURE_REQUIRES_TTY
+      unset FEATURE_LABEL FEATURE_DESCRIPTION_PATH FEATURE_APPLY_SCRIPT FEATURE_RESET_SCRIPT FEATURE_ENABLED FEATURE_REQUIRES_TTY FEATURE_BACKUP_TARGET
       continue
     fi
 
@@ -115,8 +117,13 @@ load_features() {
     FEATURE_DESCRIPTIONS+=("$description_path")
     FEATURE_APPLY_CMDS+=("$apply_script")
     FEATURE_RESET_CMDS+=("$reset_script")
+    if has_backup_for_target "$backup_target"; then
+      FEATURE_HAS_BACKUP+=(1)
+    else
+      FEATURE_HAS_BACKUP+=(0)
+    fi
 
-    unset FEATURE_LABEL FEATURE_DESCRIPTION_PATH FEATURE_APPLY_SCRIPT FEATURE_RESET_SCRIPT FEATURE_ENABLED FEATURE_REQUIRES_TTY
+    unset FEATURE_LABEL FEATURE_DESCRIPTION_PATH FEATURE_APPLY_SCRIPT FEATURE_RESET_SCRIPT FEATURE_ENABLED FEATURE_REQUIRES_TTY FEATURE_BACKUP_TARGET
   done
 
   if [[ ${#FEATURE_LABELS[@]} -eq 0 ]]; then
@@ -350,13 +357,40 @@ has_step_command() {
   return 1
 }
 
+has_backup_for_target() {
+  local target="$1"
+  local item
+
+  [[ -n "$target" ]] || return 1
+
+  for item in "$BACKUP_ROOT/$target"/original.*; do
+    [[ -f "$item" ]] && return 0
+  done
+
+  return 1
+}
+
+selected_features_with_backup() {
+  local has_any_backup="0"
+  local i
+
+  for i in "${!SELECTED[@]}"; do
+    if [[ "${SELECTED[$i]}" -eq 1 && "${FEATURE_HAS_BACKUP[$i]:-0}" -eq 1 ]]; then
+      has_any_backup="1"
+      break
+    fi
+  done
+
+  echo "$has_any_backup"
+}
+
 build_execution_steps() {
   STEP_LABELS=()
   STEP_CMDS=()
 
   if [[ "$MODE" == "reset_apply" ]]; then
     for i in "${!SELECTED[@]}"; do
-      if [[ "${SELECTED[$i]}" -eq 1 ]]; then
+      if [[ "${SELECTED[$i]}" -eq 1 && "${FEATURE_HAS_BACKUP[$i]:-0}" -eq 1 ]]; then
         if ! has_step_command "${FEATURE_RESET_CMDS[$i]}"; then
           add_step "${FEATURE_LABELS[$i]} 초기화 복원" "${FEATURE_RESET_CMDS[$i]}"
         fi
@@ -383,11 +417,36 @@ print_summary() {
 
   echo "- 선택 항목:"
   local i
+  local has_backup_items=()
+  local no_backup_items=()
   for i in "${!SELECTED[@]}"; do
     if [[ "${SELECTED[$i]}" -eq 1 ]]; then
+      if [[ "${FEATURE_HAS_BACKUP[$i]:-0}" -eq 1 ]]; then
+        has_backup_items+=("${FEATURE_LABELS[$i]}")
+      else
+        no_backup_items+=("${FEATURE_LABELS[$i]}")
+      fi
       echo "  * ${FEATURE_LABELS[$i]}"
     fi
   done
+
+  echo "- 복원 대상(백업 있음):"
+  if [[ "${#has_backup_items[@]}" -eq 0 ]]; then
+    echo "  - 없음"
+  else
+    for i in "${!has_backup_items[@]}"; do
+      echo "  * ${has_backup_items[$i]}"
+    done
+  fi
+
+  echo "- 복원 생략(백업 없음, 새 적용만):"
+  if [[ "${#no_backup_items[@]}" -eq 0 ]]; then
+    echo "  - 없음"
+  else
+    for i in "${!no_backup_items[@]}"; do
+      echo "  * ${no_backup_items[$i]}"
+    done
+  fi
 
   echo
   echo "- 실행 순서:"
@@ -434,18 +493,6 @@ run_steps() {
   echo "모든 작업이 완료되었습니다."
 }
 
-has_any_backup() {
-  [[ -d "$BACKUP_ROOT" ]] || return 1
-
-  local item
-  for item in "$BACKUP_ROOT"/*; do
-    [[ -d "$item" ]] || continue
-    return 0
-  done
-
-  return 1
-}
-
 main() {
   parse_args "$@"
   require_tty
@@ -455,14 +502,20 @@ main() {
   prepare_terminal
   disable_input_echo
 
-  if has_any_backup; then
-    select_mode_if_backup_exists
+  checkbox_select_actions
+
+  if [[ "$(selected_features_with_backup)" == "0" ]]; then
+    MODE="apply_only"
   else
+    select_mode_if_backup_exists
+  fi
+
+  build_execution_steps
+
+  if [[ "$MODE" == "reset_apply" && "${#STEP_CMDS[@]}" -eq 0 ]]; then
     MODE="apply_only"
   fi
 
-  checkbox_select_actions
-  build_execution_steps
   print_summary
   run_steps
 }
